@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, CircleCheck, CircleAlert, Loader2 } from "lucide-react";
 import { services } from "../data/services.js";
 
@@ -17,6 +17,14 @@ export default function ContactForm({ initialService = "" }) {
   // а не миттєве зникнення разом зі зміною status.
   const [errorMounted, setErrorMounted] = useState(false);
   const [errorLeaving, setErrorLeaving] = useState(false);
+  // Фікс після ревʼю: замінили фіксовану min-h-[420px] (не покривала жодного брейкпоінта,
+  // форма реально 493px/1440 і 509px/375 — блок успіху нижчий, тож давав стрибок макета
+  // 73–89px) на замір реальної висоти форми в момент переходу. `shellRef` вказує на
+  // `.contact-form-shell` в обох гілках рендеру (форма / успіх, лише одна змонтована),
+  // `lockedHeight` заморожує min-height на час показу успіху — працює на будь-якій ширині
+  // й переживе будь-яку майбутню правку полів форми.
+  const shellRef = useRef(null);
+  const [lockedHeight, setLockedHeight] = useState(null);
 
   // Якщо модалку відкрили заново з іншої картки — підхопити нову преселекцію.
   useEffect(() => {
@@ -50,6 +58,10 @@ export default function ContactForm({ initialService = "" }) {
     setStatus("sending");
     window.setTimeout(() => {
       // Демо: без реального бекенду форма завжди показує успіх після згоди.
+      // Замір ДО фази виходу — форма ще в звичайному layout, is-leaving лише міняє opacity.
+      if (shellRef.current) {
+        setLockedHeight(shellRef.current.getBoundingClientRect().height);
+      }
       setFormLeaving(true);
       window.setTimeout(() => {
         setStatus("success");
@@ -59,7 +71,12 @@ export default function ContactForm({ initialService = "" }) {
 
   if (status === "success") {
     return (
-      <div className="contact-form-shell min-h-[420px] flex flex-col justify-center" aria-live="polite">
+      <div
+        ref={shellRef}
+        className="contact-form-shell flex flex-col justify-center"
+        style={lockedHeight ? { minHeight: `${lockedHeight}px` } : undefined}
+        aria-live="polite"
+      >
         <div className="form-success-enter flex flex-col items-center text-center gap-3 py-10">
           <CircleCheck className="w-10 h-10 text-[var(--color-brand)]" strokeWidth={1.8} />
           <p className="font-semibold text-[var(--color-heading)]">Заявку надіслано</p>
@@ -72,7 +89,12 @@ export default function ContactForm({ initialService = "" }) {
   }
 
   return (
-    <div className="contact-form-shell min-h-[420px]" aria-live="polite">
+    <div
+      ref={shellRef}
+      className="contact-form-shell"
+      style={lockedHeight ? { minHeight: `${lockedHeight}px` } : undefined}
+      aria-live="polite"
+    >
       <form
         onSubmit={handleSubmit}
         noValidate
