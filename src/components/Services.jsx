@@ -27,10 +27,10 @@ export default function Services({ onSelectService }) {
               <button
                 type="button"
                 onClick={() => onSelectService?.(service.title)}
-                className="group relative h-full w-full text-left rounded-[25px] py-7 px-6 bg-white shadow-[0_4px_20px_rgba(20,20,18,0.07)] flex flex-col gap-2 min-h-[220px] cursor-pointer transition-colors duration-500 hover:bg-[var(--color-dark)]"
+                className="card-service group relative h-full w-full text-left rounded-[25px] py-7 px-6 bg-white shadow-[0_4px_20px_rgba(20,20,18,0.07)] flex flex-col gap-2 min-h-[220px] cursor-pointer transition-colors duration-500 hover:bg-[var(--color-dark)]"
               >
                 <ArrowUpRight
-                  className="absolute top-6 right-6 w-6 h-6 text-transparent group-hover:text-white/70 transition-all duration-500 group-hover:translate-x-1 group-hover:-translate-y-1"
+                  className="card-service-arrow absolute top-6 right-6 w-6 h-6 text-transparent group-hover:text-white/70 group-hover:translate-x-1 group-hover:-translate-y-1"
                   strokeWidth={1.8}
                 />
                 {/* Іконка без фонової плашки — просто іконка, більша за попередній розмір,

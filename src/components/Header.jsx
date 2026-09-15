@@ -17,11 +17,38 @@ const PHONE_HREF = "tel:+380687775342";
 // і невеликим top-відступом — fixed поверх контенту, а не sticky-в-потоці.
 export default function Header() {
   const [open, setOpen] = useState(false);
+  // design-motion-spec.md §2.4 — мобільне меню монтується/розмонтовується керовано, не
+  // умовним рендером: `menuMounted` тримає елемент у DOM під час анімації виходу (160ms),
+  // `menuVisible` перемикає клас `.is-visible`, що й запускає CSS-transition (260ms вхід).
+  const [menuMounted, setMenuMounted] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  useEffect(() => {
+    let raf1;
+    let raf2;
+    let timer;
+    if (open) {
+      setMenuMounted(true);
+      // Подвійний rAF: перший кадр фіксує базовий стан (opacity 0) у DOM, другий додає
+      // .is-visible — інакше браузер може змерджити обидва стани в один кадр без transition.
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setMenuVisible(true));
+      });
+    } else {
+      setMenuVisible(false);
+      timer = window.setTimeout(() => setMenuMounted(false), 160);
+    }
+    return () => {
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+      if (timer) window.clearTimeout(timer);
     };
   }, [open]);
 
@@ -60,17 +87,28 @@ export default function Header() {
 
           <button
             type="button"
-            className="lg:hidden flex items-center justify-center w-10 h-10 -mr-1.5 text-[var(--color-heading)]"
+            className="lg:hidden relative flex items-center justify-center w-10 h-10 -mr-1.5 text-[var(--color-heading)]"
             aria-label={open ? "Закрити меню" : "Відкрити меню"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {/* §2.4 — Menu↔X перемикаються crossfade'ом opacity (180ms), обидві іконки
+                накладені абсолютно, компонент не замінюється. */}
+            <Menu
+              aria-hidden="true"
+              className={`menu-icon absolute w-6 h-6 ${open ? "opacity-0" : "opacity-100"}`}
+            />
+            <X
+              aria-hidden="true"
+              className={`menu-icon absolute w-6 h-6 ${open ? "opacity-100" : "opacity-0"}`}
+            />
           </button>
         </div>
 
-        {open && (
-          <div className="lg:hidden mt-2 rounded-[25px] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgba(20,20,18,0.12)] overflow-hidden">
+        {menuMounted && (
+          <div
+            className={`mobile-menu-panel lg:hidden mt-2 rounded-[25px] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgba(20,20,18,0.12)] overflow-hidden ${menuVisible ? "is-visible" : ""}`}
+          >
             <nav className="flex flex-col px-5 py-3 gap-1" aria-label="Мобільна навігація">
               {NAV.map((item) => (
                 <a

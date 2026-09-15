@@ -52,6 +52,17 @@ body {
   overflow-x: hidden;
 }
 
+/* design-motion-spec.md §2.1 — глобальний клавіатурний фокус, брендовий, а не дефолтний
+   браузерний. Ніде в проєкті немає `outline: none` без цієї заміни. */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+.btn:focus-visible,
+.eyebrow:focus-visible {
+  outline-offset: 3px;
+}
+
 /* @layer base — раніше ці правила йшли поза шаром Tailwind (unlayered), тому мали
    ВИЩИЙ пріоритет за будь-який utility-клас типу text-[52px] незалежно від специфічності
    (у Tailwind v4 неприв'язана до шару CSS завжди б'є будь-яку класову утиліту з утиліт-шару).
@@ -134,6 +145,25 @@ p {
     filter: none !important;
     opacity: 1 !important;
   }
+
+  /* design-motion-spec.md §5 — усе нове з motion-спеку: transform/фільтр вимикається,
+     opacity НЕ форсується (на відміну від .reveal) — стан видимості й далі керує React
+     (закрита модалка лишається закритою, просто без анімації), тільки перехід миттєвий. */
+  .btn,
+  [class*="card-service"],
+  .modal-panel,
+  .modal-backdrop,
+  .map-media,
+  .mobile-menu-panel,
+  .menu-icon,
+  .contact-form,
+  .form-success-enter,
+  .error-message {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
 
 /* Кнопки — два типи, CTA-01/05/06 */
@@ -158,6 +188,20 @@ p {
     transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* design-motion-spec.md §2.2 — :active лягає поверх наявного hover-lift коротшим різкішим
+   імпульсом (120ms), :disabled глушить transform-шари, щоб hover/active не спрацьовували. */
+.btn:active {
+  transform: translateY(-1px) scale(0.97);
+  transition-duration: 120ms;
+}
+.btn:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn:disabled .btn__fill,
+.btn:disabled .btn__label {
+  pointer-events: none;
 }
 .btn__label {
   position: relative;
@@ -218,4 +262,136 @@ p {
 .container-x {
   width: min(1180px, 92vw);
   margin-inline: auto;
+}
+
+/* ===== design-motion-spec.md §2.3 — картка послуги, сигнатурна взаємодія (MOT-04) =====
+   Окремий transform-шар від фонового кольору (той лишається на Tailwind transition-colors
+   duration-500 у Services.jsx): card-lift 620ms, :active — коротший різкіший імпульс 150ms. */
+.card-service {
+  transform: translateY(0);
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-service:hover {
+  transform: translateY(-6px);
+}
+.card-service:active {
+  transform: translateY(-2px) scale(0.98);
+  transition-duration: 150ms;
+}
+/* Стрілка картки — розсинхронізована з фоном (500ms): колір той самий 500ms, translate 420ms. */
+.card-service-arrow {
+  transition:
+    color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===== design-motion-spec.md §2.5 — зум карти на group-hover ===== */
+.map-media {
+  transform: scale(1);
+  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.group:hover .map-media {
+  transform: scale(1.04);
+}
+
+/* ===== design-motion-spec.md §2.4 — мобільне меню: керована монтуванням+класом схема =====
+   База = стан "закрито" І цільовий стан при закритті (тому тут тривалість виходу, 160ms);
+   .is-visible = цільовий стан при відкритті (тому в ній тривалість входу, 260ms) — вихід
+   завжди швидший за вхід, CSS-транзиція бере тривалість зі стилю, В ЯКИЙ переходить елемент. */
+.mobile-menu-panel {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mobile-menu-panel.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.menu-icon {
+  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ===== design-motion-spec.md §4 — модалка запису: вхід/вихід без бібліотек =====
+   Той самий принцип асиметрії, що й у .mobile-menu-panel: тривалість виходу — на базовому
+   класі (це цільовий стан при закритті), тривалість входу — на .is-visible. Панель входить
+   з затримкою 40ms відносно backdrop (легкий десинк), виходить без затримки. */
+.modal-backdrop {
+  opacity: 0;
+  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.modal-backdrop.is-visible {
+  opacity: 1;
+  transition: opacity 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.modal-panel {
+  opacity: 0;
+  transform: scale(0.96) translateY(12px);
+  transition:
+    opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.modal-panel.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition:
+    opacity 320ms cubic-bezier(0.22, 1, 0.36, 1) 40ms,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1) 40ms;
+}
+
+/* ===== design-motion-spec.md §4 — форма: двофазний перехід у стан успіху + помилка =====
+   (а) форма фейдить 160ms; (б) блок успіху входить за граматикою Reveal (MOT-01/02) 600ms.
+   Анімація (не transition) обрана свідомо для входу успіху/помилки — грає одразу при монтуванні
+   елемента без потреби в подвійному rAF-трюку (transition вимагає зміни стану ПІСЛЯ першого
+   пофарбування, а цей блок з'являється вже новим елементом у DOM). */
+.contact-form {
+  transition: opacity 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.contact-form.is-leaving {
+  opacity: 0;
+}
+@keyframes form-success-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+.form-success-enter {
+  animation: form-success-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes form-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes form-error-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.error-message {
+  animation: form-error-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.error-message.is-leaving {
+  animation: form-error-out 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }

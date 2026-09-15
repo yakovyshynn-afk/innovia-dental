@@ -10,11 +10,36 @@ export default function ContactForm({ initialService = "" }) {
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
   const [consent, setConsent] = useState(false);
   const [service, setService] = useState(initialService);
+  // design-motion-spec.md §4 — двофазний перехід у успіх: форма спершу фейдить (is-leaving,
+  // 160ms), і лише після завершення монтується блок успіху (form-success-enter, 600ms).
+  const [formLeaving, setFormLeaving] = useState(false);
+  // §4 / §2.6 — те саме для помилки: вихід (160ms) програється ДО розмонтування з DOM,
+  // а не миттєве зникнення разом зі зміною status.
+  const [errorMounted, setErrorMounted] = useState(false);
+  const [errorLeaving, setErrorLeaving] = useState(false);
 
   // Якщо модалку відкрили заново з іншої картки — підхопити нову преселекцію.
   useEffect(() => {
     setService(initialService);
   }, [initialService]);
+
+  useEffect(() => {
+    let timer;
+    if (status === "error") {
+      setErrorLeaving(false);
+      setErrorMounted(true);
+    } else if (errorMounted) {
+      setErrorLeaving(true);
+      timer = window.setTimeout(() => {
+        setErrorMounted(false);
+        setErrorLeaving(false);
+      }, 160);
+    }
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,24 +50,34 @@ export default function ContactForm({ initialService = "" }) {
     setStatus("sending");
     window.setTimeout(() => {
       // Демо: без реального бекенду форма завжди показує успіх після згоди.
-      setStatus("success");
+      setFormLeaving(true);
+      window.setTimeout(() => {
+        setStatus("success");
+      }, 160);
     }, 900);
   };
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center text-center gap-3 py-10">
-        <CircleCheck className="w-10 h-10 text-[var(--color-brand)]" strokeWidth={1.8} />
-        <p className="font-semibold text-[var(--color-heading)]">Заявку надіслано</p>
-        <p className="text-sm text-[var(--color-ink-soft)] max-w-[32ch]">
-          Ми зателефонуємо вам, щоб узгодити зручний час консультації.
-        </p>
+      <div className="contact-form-shell min-h-[420px] flex flex-col justify-center" aria-live="polite">
+        <div className="form-success-enter flex flex-col items-center text-center gap-3 py-10">
+          <CircleCheck className="w-10 h-10 text-[var(--color-brand)]" strokeWidth={1.8} />
+          <p className="font-semibold text-[var(--color-heading)]">Заявку надіслано</p>
+          <p className="text-sm text-[var(--color-ink-soft)] max-w-[32ch]">
+            Ми зателефонуємо вам, щоб узгодити зручний час консультації.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+    <div className="contact-form-shell min-h-[420px]" aria-live="polite">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className={`contact-form flex flex-col gap-4 ${formLeaving ? "is-leaving" : ""}`}
+      >
       <div>
         <label htmlFor="name" className="block font-display font-semibold text-[12.5px] leading-4 text-[var(--color-heading)] mb-1.5">
           Ім'я
@@ -124,8 +159,8 @@ export default function ContactForm({ initialService = "" }) {
         </span>
       </label>
 
-      {status === "error" && (
-        <p className="flex items-center gap-2 text-sm text-red-600">
+      {errorMounted && (
+        <p className={`error-message flex items-center gap-2 text-sm text-red-600 ${errorLeaving ? "is-leaving" : ""}`}>
           <CircleAlert className="w-4 h-4 shrink-0" strokeWidth={2} />
           Позначте згоду на обробку даних, щоб надіслати заявку.
         </p>
@@ -138,5 +173,6 @@ export default function ContactForm({ initialService = "" }) {
         </span>
       </button>
     </form>
+    </div>
   );
 }

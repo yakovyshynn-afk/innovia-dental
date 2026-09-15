@@ -1,10 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import ContactForm from "./ContactForm.jsx";
 
 // Модалка запису — та сама форма, що в #contact, тільки з преселекцією поля "Послуга"
 // (відкривається кліком по картці в Services.jsx, пряма вимога 1:1-референсу власника).
+// design-motion-spec.md §4 — керована монтуванням+класом схема (без бібліотек): `mounted`
+// тримає компонент у DOM під час виходу (180ms), `visible` перемикає `.is-visible`, що
+// запускає вхід (backdrop 220ms, панель 320ms із затримкою 40ms). Escape і клік на backdrop
+// йдуть через ту саму `handleClose`, щоб анімація виходу ніколи не обходилась.
 export default function BookingModal({ open, service, onClose }) {
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    let raf1;
+    let raf2;
+    let timer;
+    if (open) {
+      setMounted(true);
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setVisible(true));
+      });
+    } else {
+      setVisible(false);
+      timer = window.setTimeout(() => setMounted(false), 180);
+    }
+    return () => {
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return undefined;
     document.body.style.overflow = "hidden";
@@ -18,18 +45,18 @@ export default function BookingModal({ open, service, onClose }) {
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className={`modal-backdrop fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm ${visible ? "is-visible" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label="Форма запису на консультацію"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md max-h-[90svh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-7 sm:p-8"
+        className={`modal-panel relative w-full max-w-md max-h-[90svh] overflow-y-auto bg-white rounded-2xl shadow-2xl p-7 sm:p-8 ${visible ? "is-visible" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button

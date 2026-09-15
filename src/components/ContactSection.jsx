@@ -30,7 +30,7 @@ export default function ContactSection() {
           <iframe
             title="Розташування INNOVIA dental на карті"
             src={MAP_SRC}
-            className="w-full h-full min-h-[320px] border-0 pointer-events-none select-none"
+            className="map-media w-full h-full min-h-[320px] border-0 pointer-events-none select-none"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             tabIndex={-1}
