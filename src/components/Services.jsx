@@ -27,7 +27,7 @@ export default function Services({ onSelectService }) {
               <button
                 type="button"
                 onClick={() => onSelectService?.(service.title)}
-                className="card-service group relative h-full w-full text-left rounded-[25px] py-7 px-6 bg-white shadow-[0_4px_20px_rgba(20,20,18,0.07)] flex flex-col gap-2 min-h-[220px] cursor-pointer transition-colors duration-500 hover:bg-[var(--color-dark)]"
+                className="card-service group relative h-full w-full text-center rounded-[25px] py-7 px-6 bg-white shadow-[0_4px_20px_rgba(20,20,18,0.07)] flex flex-col items-center justify-center gap-2 min-h-[220px] cursor-pointer transition-colors duration-500 hover:bg-[var(--color-dark)]"
               >
                 <ArrowUpRight
                   className="card-service-arrow absolute top-6 right-6 w-6 h-6 text-transparent group-hover:text-white/70 group-hover:translate-x-1 group-hover:-translate-y-1"
@@ -46,7 +46,7 @@ export default function Services({ onSelectService }) {
                   <h3 className="mb-2 text-[var(--color-heading)] group-hover:text-white transition-colors duration-500">
                     {service.title}
                   </h3>
-                  <p className="text-sm text-[var(--color-ink-soft)] group-hover:text-white/70 leading-relaxed transition-colors duration-500">
+                  <p className="text-sm max-w-[32ch] mx-auto text-[var(--color-ink-soft)] group-hover:text-white/70 leading-relaxed transition-colors duration-500">
                     {service.description}
                   </p>
                 </div>
