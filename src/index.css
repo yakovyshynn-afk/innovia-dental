@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/* ===== Шрифти =====
+   Заголовки (h1,h2,h3,.eyebrow) — Plus Jakarta Sans 700/800.
+   Текст — Inter 400/500.
+   Фінальне рішення власника 2026-09-14 (див. notes.md) — заміна попереднього
+   варіанту з Geeza Pro (системний Apple-шрифт, немає веб-джерела й повної
+   підтримки кирилиці). Обидва шрифти — Google Fonts, повне кириличне покриття,
+   однаково рендеряться на всіх ОС/браузерах. */
+
+@theme {
+  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Кольори — точні HEX від власника, 2026-09-14. Раніше один токен --color-ink
+     відповідав і за колір заголовків/тексту, і за фон темних елементів (кнопки,
+     hover-картки) — тепер це два окремі призначення з різним кольором:
+     --color-heading — темно-зелено-графітовий, ТЕКСТ (заголовки й основний текст);
+     --color-dark — середньо-сірий, ФОН темних UI-елементів (btn-dark, hover-картки
+     послуг, темні секції-панелі). Не плутати між собою при новому використанні. */
+  --color-heading: #1e2a26;
+  --color-dark: #4f4f4f;
+  --color-ink-soft: #5c6b65;
+  --color-brand: #2f7566;
+  --color-brand-light: #5c9488;
+  --color-brand-deep: #234f46;
+  --color-surface: #f4f4f4;
+  --color-surface-tint: #eaf4f0;
+  --color-line: #dce7e2;
+  --color-input-bg: #fbfaf7;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Шапка тепер плаваючий fixed-бар (Header.jsx), не sticky-в-потоці — секціям з якорями
+   потрібен відступ, щоб не ховатись під нею при переході по навігації. */
+section[id] {
+  scroll-margin-top: 110px;
+}
+
+body {
+  font-family: var(--font-text);
+  color: var(--color-heading);
+  background: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* @layer base — раніше ці правила йшли поза шаром Tailwind (unlayered), тому мали
+   ВИЩИЙ пріоритет за будь-який utility-клас типу text-[52px] незалежно від специфічності
+   (у Tailwind v4 неприв'язана до шару CSS завжди б'є будь-яку класову утиліту з утиліт-шару).
+   Через це h1 у Hero.jsx рендерився clamp-розміром (до 70.4px на 1440px), а не заданими
+   inline-класами 52px. Обгортання в @layer base повертає очікувану каскадну поведінку:
+   явний Tailwind-клас на конкретному елементі коректно перекриває цей дефолт. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 800;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6.6vw, 4.4rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    hyphens: none;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 4.6vw, 3.1rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    hyphens: none;
+  }
+
+  h3 {
+    font-weight: 700;
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+}
+
+p {
+  text-wrap: pretty;
+}
+
+/* Eyebrow-лейбли — Inter 600 (не Jakarta): точний figma-експорт показує ці кикер-лейбли
+   переважно як font-family 'Inter' (hero/про нас/послуги/лікарі/до-після), колір #4F4F4F
+   (var(--color-dark)) за замовчуванням. Виняток — "ВІДГУКИ ПАЦІЄНТІВ" у Reviews.jsx, там
+   брендовий зелений #2F7566 через явний override класу (!text-[var(--color-brand)]). */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-dark);
+}
+
+/* Reveal-on-scroll — MOT-01/02, staggered fade+blur, один easing на проєкт */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(14px);
+  transition:
+    opacity 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms),
+    filter 900ms cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition-duration: 1ms !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Кнопки — два типи, CTA-01/05/06 */
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: 0;
+  /* Усі кнопки в figma-експорті позначені 'Geeza Pro' або 'Onest' — за правилом "два шрифти,
+     не три" це Plus Jakarta Sans, вага 700. */
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  padding: 14px 24px;
+  border-radius: 25px;
+  white-space: nowrap;
+  transition:
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn__label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn__fill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.btn-dark {
+  background: var(--color-dark);
+  color: #fff;
+}
+.btn-dark:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 38px -16px rgba(79, 79, 79, 0.55);
+}
+
+.btn-ghost {
+  background: #fff;
+  border: 1.5px solid var(--color-line);
+  color: var(--color-heading);
+}
+.btn-ghost .btn__fill {
+  background: var(--color-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-ghost:hover {
+  border-color: var(--color-brand);
+  transform: translateY(-3px);
+}
+.btn-ghost:hover .btn__fill {
+  transform: scaleX(1);
+}
+.btn-ghost:hover .btn__label {
+  color: #fff;
+}
+
+.btn-outline-light {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px);
+}
+
+.container-x {
+  width: min(1180px, 92vw);
+  margin-inline: auto;
+}
