@@ -46,7 +46,7 @@ export default function About() {
           <ul className="space-y-3 mb-8">
             {CHECKLIST.map((item) => (
               <li key={item} className="flex gap-3 items-start">
-                {/* чек-лист іконка-плашка: 26x26, bg #EAF4F0, radius 8px, ✓ #2F7566 */}
+                {/* чек-лист іконка-плашка: 26x26, bg #E9E9E9 (нейтральна), radius 8px, ✓ #00474A (акцент) */}
                 <span className="flex items-center justify-center w-[26px] h-[26px] rounded-[8px] bg-[var(--color-surface-tint)] shrink-0">
                   <Check className="w-3.5 h-3.5 text-[var(--color-brand)]" strokeWidth={3} />
                 </span>
