@@ -24,15 +24,12 @@
       content="Дев'ять напрямків лікування в одній клініці. Рейтинг Google 4.8★ (49 відгуків). вул. Лесі Українки, 24, Кам'янець-Подільський."
     />
     <meta property="og:locale" content="uk_UA" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Шрифти — фінальне рішення власника 2026-09-14 (notes.md): Plus Jakarta Sans (заголовки, 700/800)
-         + Inter (текст, 400/500). Замінили попередній варіант із системним Geeza Pro (без веб-джерела
-         й повної кирилиці) — обидва тут Google Fonts з повним кириличним покриттям. -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@700;800&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Шрифти — self-host, perf-задача 2026-09-15 (п.1.4): Inter (текст, 400/500/600) +
+         Plus Jakarta Sans (заголовки, 700/800), файли в public/fonts/, підключення через
+         @font-face у src/index.css (font-display: swap). Раніше рендер-блокуючий запит до
+         fonts.googleapis.com — прибрано разом з preconnect. -->
+    <link rel="preload" href="/fonts/inter-cyrillic-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jakarta-latin-800.woff2" as="font" type="font/woff2" crossorigin />
     <!-- TODO: додати "identifier" (номер ліцензії МОЗ) у блок Dentist нижче, коли клієнт надасть — див. gaps.md.
          Значення image/sameAs для Facebook навмисно не додані: реальний URL сторінки Facebook і фото клініки
          в брифі відсутні, вигадувати заборонено standards/demo.md. -->

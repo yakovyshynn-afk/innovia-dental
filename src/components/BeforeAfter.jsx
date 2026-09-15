@@ -25,7 +25,19 @@ export default function BeforeAfter() {
           {beforeAfterCases.map((item, i) => (
             <Reveal key={item.id} delay={i * 80}>
               <div className="rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(20,20,18,0.07)] aspect-square">
-                <img src={item.image} alt={`Кейс ${item.id} — фото до і після лікування`} className="w-full h-full object-cover" />
+                {/* нижче першого екрана — lazy, WebP+JPEG (perf-задача 2026-09-15, п.1.1/1.2) */}
+                <picture>
+                  <source type="image/webp" srcSet={item.imageWebp} />
+                  <img
+                    src={item.image}
+                    width={item.width}
+                    height={item.height}
+                    alt={`Кейс ${item.id} — фото до і після лікування`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </div>
             </Reveal>
           ))}

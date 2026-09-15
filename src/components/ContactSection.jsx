@@ -13,12 +13,27 @@ export default function ContactSection() {
       id="contact"
       className="relative !py-16 md:!py-24 bg-[var(--color-dark)] text-white overflow-hidden"
     >
-      <img
-        src="/images/footer-texture.jpg"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover opacity-25"
-      />
+      {/* нижче першого екрана — lazy, WebP+JPEG, srcset під ширину секції (100vw)
+          (perf-задача 2026-09-15, п.1.1/1.2/1.3) */}
+      <picture>
+        <source
+          type="image/webp"
+          srcSet="/images/footer-texture-640.webp 640w, /images/footer-texture-960.webp 960w, /images/footer-texture-1280.webp 1280w, /images/footer-texture.webp 1440w"
+          sizes="100vw"
+        />
+        <img
+          src="/images/footer-texture.jpg"
+          srcSet="/images/footer-texture-640.jpg 640w, /images/footer-texture-960.jpg 960w, /images/footer-texture-1280.jpg 1280w, /images/footer-texture.jpg 1440w"
+          sizes="100vw"
+          width="1440"
+          height="736"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
       <div className="absolute inset-0 bg-[var(--color-dark)]/70" />
 
       <div className="container-x relative grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">

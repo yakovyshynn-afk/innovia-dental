@@ -21,8 +21,12 @@ export default function FooterBottom() {
           <img
             src="/images/logo.png"
             alt="INNOVIA dental"
+            width="100"
+            height="57"
             className="h-8 w-auto object-contain mb-3"
             style={{ filter: "invert(1) brightness(2)" }}
+            loading="lazy"
+            decoding="async"
           />
           <p className="text-[12px] leading-relaxed max-w-[26ch]">
             Стоматологічна клініка в Кам'янці-Подільському. Дев'ять напрямків лікування в одній

@@ -1,6 +1,6 @@
-import { Icon } from "@iconify/react";
 import { ArrowUpRight } from "lucide-react";
 import { services } from "../data/services.js";
+import OfflineIcon from "./OfflineIcon.jsx";
 import Reveal from "./Reveal.jsx";
 
 // Кожна картка темніє при наведенні (hover), а клік відкриває модалку запису з преселекцією
@@ -37,7 +37,7 @@ export default function Services({ onSelectService }) {
                     колір #4F4F4F (var(--color-dark)), той самий що й кнопки на сайті —
                     НЕ брендовий зелений (власник прямо прибрав зелений і кругову підложку). */}
                 <div className="flex items-center justify-center mb-3">
-                  <Icon
+                  <OfflineIcon
                     icon={service.icon}
                     className="w-9 h-9 text-[var(--color-dark)] group-hover:text-white transition-colors duration-500"
                   />

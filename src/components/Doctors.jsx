@@ -21,7 +21,25 @@ export default function Doctors() {
             <Reveal key={doc.id} delay={i * 100}>
               <article className="bg-white rounded-[25px] shadow-[0_4px_20px_rgba(20,20,18,0.07)] h-full p-6 sm:p-7 flex flex-col">
                 <div className="aspect-square overflow-hidden rounded-[18px] mb-5">
-                  <img src={doc.photo} alt={`Фото лікаря — ${doc.name}, з Instagram клініки`} className="w-full h-full object-cover" />
+                  {/* нижче першого екрана — lazy, WebP+JPEG, srcset 242/323 (perf-задача 2026-09-15) */}
+                  <picture>
+                    <source
+                      type="image/webp"
+                      srcSet={`${doc.photoBase}-242.webp 242w, ${doc.photoBase}.webp ${doc.photoWidth}w`}
+                      sizes="(min-width: 1024px) 242px, (min-width: 640px) 45vw, 90vw"
+                    />
+                    <img
+                      src={doc.photo}
+                      srcSet={`${doc.photoBase}-242.jpg 242w, ${doc.photo} ${doc.photoWidth}w`}
+                      sizes="(min-width: 1024px) 242px, (min-width: 640px) 45vw, 90vw"
+                      width={doc.photoWidth}
+                      height={doc.photoHeight}
+                      alt={`Фото лікаря — ${doc.name}, з Instagram клініки`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
                 <div className="text-center mt-auto">
                   <h3 className="mb-1.5">{doc.name}</h3>

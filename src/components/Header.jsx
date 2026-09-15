@@ -57,16 +57,22 @@ export default function Header() {
       <div className="container-x pt-3 sm:pt-[29px]">
         <div className="flex items-center justify-between gap-4 h-[71px] rounded-[25px] bg-white/75 backdrop-blur-md shadow-[0_8px_30px_rgba(20,20,18,0.08)] px-4 sm:px-6">
           <a href="#hero" className="flex items-center shrink-0 min-w-0">
-            <img src="/images/logo.png" alt="INNOVIA dental" className="h-7 sm:h-8 w-auto object-contain" />
+            <img
+              src="/images/logo.png"
+              alt="INNOVIA dental"
+              width="100"
+              height="57"
+              className="h-7 sm:h-8 w-auto object-contain"
+              decoding="async"
+            />
           </a>
 
           <nav className="hidden lg:flex items-center gap-8 mx-auto" aria-label="Основна навігація">
+            {/* nav-link — CTA-05/06: hover несе напрямок (підкреслення виїжджає зліва), не
+                лише зміну кольору; шари розсинхронізовані (колір 320ms / підкреслення 420ms).
+                Деталі класу — index.css. */}
             {NAV.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-[var(--color-dark)] hover:text-[var(--color-brand)] transition-colors"
-              >
+              <a key={item.href} href={item.href} className="nav-link text-sm font-medium">
                 {item.label}
               </a>
             ))}

@@ -21,11 +21,25 @@ export default function About() {
               читанням CSS-експорту). Пропорції ~586px фото на канві 1440 ≈ 40.7% ширини —
               тримаємо той самий вертикальний формат через aspect-ratio. */}
           <div className="relative rounded-[28px] shadow-xl overflow-hidden aspect-[586/644] max-w-[586px] mx-auto lg:mx-0">
-            <img
-              src="/images/about-exterior.jpg"
-              alt="Фасад клініки INNOVIA dental"
-              className="w-full h-full object-cover"
-            />
+            {/* нижче першого екрана — lazy, WebP+JPEG, srcset 400/586 (perf-задача 2026-09-15) */}
+            <picture>
+              <source
+                type="image/webp"
+                srcSet="/images/about-exterior-400.webp 400w, /images/about-exterior.webp 586w"
+                sizes="(min-width: 1024px) 586px, 90vw"
+              />
+              <img
+                src="/images/about-exterior.jpg"
+                srcSet="/images/about-exterior-400.jpg 400w, /images/about-exterior.jpg 586w"
+                sizes="(min-width: 1024px) 586px, 90vw"
+                width="586"
+                height="644"
+                alt="Фасад клініки INNOVIA dental"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </div>
         </Reveal>
 

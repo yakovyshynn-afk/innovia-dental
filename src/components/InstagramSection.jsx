@@ -29,42 +29,67 @@ export default function InstagramSection() {
             стек в один стовпець (без grid-cols-[..fr]), gap звужується до 8/16px. */}
         <Reveal delay={80} className="max-w-[1084px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-[476fr_566fr] gap-2 sm:gap-4 lg:gap-[42px]">
-            <img
-              src={profileShot.src}
-              alt="Скріншот Instagram-профілю INNOVIA dental (@innovia_dental_kp)"
-              className="w-full h-auto aspect-[476/791] object-cover rounded-[25px]"
-              loading="lazy"
-            />
+            {/* geometrу не чіпана (попіксельно доведена) — лише WebP+lazy додані поверх,
+                <picture> явно `block`, щоб не змінити outer-box порівняно з голим <img>
+                (perf-задача 2026-09-15, п.1.1/1.2, геометрію не чіпати). */}
+            <picture className="block">
+              <source type="image/webp" srcSet={profileShot.src.replace(/\.jpg$/, ".webp")} />
+              <img
+                src={profileShot.src}
+                width="476"
+                height="791"
+                alt="Скріншот Instagram-профілю INNOVIA dental (@innovia_dental_kp)"
+                className="w-full h-auto aspect-[476/791] object-cover rounded-[25px]"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
 
             <div className="flex flex-col gap-2 sm:gap-4 lg:gap-[32px]">
-              <img
-                src={wideShot.src}
-                alt={`Публікація Instagram клініки ${wideShot.id}`}
-                className="w-full h-auto aspect-[566/275] object-cover rounded-[25px]"
-                loading="lazy"
-              />
+              <picture className="block">
+                <source type="image/webp" srcSet={wideShot.src.replace(/\.jpg$/, ".webp")} />
+                <img
+                  src={wideShot.src}
+                  width="566"
+                  height="275"
+                  alt={`Публікація Instagram клініки ${wideShot.id}`}
+                  className="w-full h-auto aspect-[566/275] object-cover rounded-[25px]"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
 
               <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-[32px]">
                 {topTiles.map((post) => (
-                  <img
-                    key={post.id}
-                    src={post.src}
-                    alt={`Публікація Instagram клініки ${post.id}`}
-                    className="w-full h-auto aspect-[168/226] object-cover rounded-[25px]"
-                    loading="lazy"
-                  />
+                  <picture key={post.id} className="block">
+                    <source type="image/webp" srcSet={post.src.replace(/\.jpg$/, ".webp")} />
+                    <img
+                      src={post.src}
+                      width="168"
+                      height="226"
+                      alt={`Публікація Instagram клініки ${post.id}`}
+                      className="w-full h-auto aspect-[168/226] object-cover rounded-[25px]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 ))}
               </div>
 
               <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-[32px]">
                 {bottomTiles.map((post) => (
-                  <img
-                    key={post.id}
-                    src={post.src}
-                    alt={`Публікація Instagram клініки ${post.id}`}
-                    className="w-full h-auto aspect-[168/226] object-cover rounded-[25px]"
-                    loading="lazy"
-                  />
+                  <picture key={post.id} className="block">
+                    <source type="image/webp" srcSet={post.src.replace(/\.jpg$/, ".webp")} />
+                    <img
+                      src={post.src}
+                      width="168"
+                      height="226"
+                      alt={`Публікація Instagram клініки ${post.id}`}
+                      className="w-full h-auto aspect-[168/226] object-cover rounded-[25px]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 ))}
               </div>
             </div>
